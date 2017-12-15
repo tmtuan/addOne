@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITextFieldDelegate {
 
     // MARK: Properties
     var randNum: UInt32 = 0
@@ -23,7 +23,7 @@ class ViewController: UIViewController {
         let lb = UILabel()
         lb.backgroundColor = UIColor.white
         lb.textColor = UIColor.black
-        lb.textAlignment = .left
+        lb.textAlignment = .center
         lb.backgroundColor = UIColor.white
         lb.layer.borderWidth = 1
         lb.layer.borderColor = UIColor.black.cgColor
@@ -37,7 +37,7 @@ class ViewController: UIViewController {
         lb.text = "Score: 0"
         lb.backgroundColor = UIColor.white
         lb.textColor = UIColor.black
-        lb.textAlignment = .left
+        lb.textAlignment = .center
         lb.backgroundColor = UIColor.white
         lb.layer.borderWidth = 1
         lb.layer.borderColor = UIColor.black.cgColor
@@ -95,6 +95,7 @@ class ViewController: UIViewController {
             
             addOneNumberTextField[i].keyboardType = .numberPad
             addOneNumberTextField[i].textAlignment = .center
+            addOneNumberTextField[i].delegate = self
             view.addSubview(addOneNumberTextField[i])
         }
         view.addSubview(compareButton)
@@ -209,6 +210,27 @@ class ViewController: UIViewController {
         }
     }
     
+    // MARK: UITextField's Delegates
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        for i in 0...2 {
+            if (textField == addOneNumberTextField[i]) {
+                addOneNumberTextField[i+1].becomeFirstResponder()
+                break
+            }
+        }
+        return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        if (textField.text!.count >= 1) {
+            textField.text = ""
+        }
+        
+        return true
+    }
+    
 }
 
 class MyTextField: UITextField, UITextFieldDelegate {
@@ -222,15 +244,6 @@ class MyTextField: UITextField, UITextFieldDelegate {
         translatesAutoresizingMaskIntoConstraints = false
         delegate = self
         
-    }
-    
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        print(textField.text?.count ?? 1000)
-        
-    }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        print("End Editing")
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
