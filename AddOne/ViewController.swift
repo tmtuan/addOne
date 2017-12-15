@@ -45,6 +45,21 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return lb
     }()
     
+    var highscoreDefault = UserDefaults.standard
+    var highscore = 0
+    let highscoreLabel: UILabel = {
+        let lb = UILabel()
+        lb.text = "High Score: 0"
+        lb.backgroundColor = UIColor.white
+        lb.textColor = UIColor.black
+        lb.textAlignment = .center
+        lb.backgroundColor = UIColor.white
+        lb.layer.borderWidth = 1
+        lb.layer.borderColor = UIColor.black.cgColor
+        lb.translatesAutoresizingMaskIntoConstraints = false
+        return lb
+    }()
+    
     let randomNumberTextField: MyTextField = {
         let textfield = MyTextField()
         textfield.placeholder = "Random Number"
@@ -86,10 +101,15 @@ class ViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if(highscoreDefault.value(forKey: "Highscore") != nil) {
+            highscore = highscoreDefault.value(forKey: "Highscore") as! Int
+            highscoreLabel.text = "High score: \(highscore)"
+        }
         view.backgroundColor = UIColor.white
         
         view.addSubview(countdownLabel)
         view.addSubview(scoreLabel)
+        view.addSubview(highscoreLabel)
         view.addSubview(randomNumberTextField)
         for i in 0...3 {
             
@@ -103,6 +123,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
         setupViews()
         
+        
         gameTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(countdown), userInfo: nil, repeats: true)
     }
 
@@ -113,13 +134,19 @@ class ViewController: UIViewController, UITextFieldDelegate {
         countdownLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 60).isActive = true
         countdownLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 1/3).isActive = true
         countdownLabel.heightAnchor.constraint(equalToConstant: 60).isActive = true
-        countdownLabel.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 24).isActive = true
+        countdownLabel.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 12).isActive = true
         
         // scoreLabel
         scoreLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 60).isActive = true
         scoreLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 1/3).isActive = true
         scoreLabel.heightAnchor.constraint(equalToConstant: 60).isActive = true
-        scoreLabel.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: -24).isActive = true
+        scoreLabel.leftAnchor.constraint(equalTo: self.countdownLabel.rightAnchor).isActive = true
+       
+        // highscoreLabel
+        highscoreLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 60).isActive = true
+        highscoreLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 1/3).isActive = true
+        highscoreLabel.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        highscoreLabel.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: -24).isActive = true
         
         // randomNumberTextField
         randomNumberTextField.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -24).isActive = true
@@ -201,6 +228,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
         countdownLabel.text = "Time: \(String(count))"
         if (count <= 0) {
             gameTimer?.invalidate()
+            if (score > highscore) {
+                highscore = score
+                highscoreLabel.text = "High Score: \(highscore)"
+                highscoreDefault.set(highscore, forKey: "Highscore")
+                highscoreDefault.synchronize()
+
+            }
             let alert = UIAlertController(title: "Congratulations!", message: "You have got \(score) scores!", preferredStyle: UIAlertControllerStyle.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: { (action) in
                 alert.dismiss(animated: true, completion: nil)
