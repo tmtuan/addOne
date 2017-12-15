@@ -15,15 +15,32 @@ class ViewController: UIViewController {
     var digit: [UInt32] = [0,0,0,0]
     var add_1: [UInt32] = [0,0,0,0]
     var result = false
-    var count = 0
     
     var gameTimer: Timer?
     
+    var count = 30
     let countdownLabel: UILabel = {
         let lb = UILabel()
         lb.backgroundColor = UIColor.white
         lb.textColor = UIColor.black
-        lb.textAlignment = .center
+        lb.textAlignment = .left
+        lb.backgroundColor = UIColor.white
+        lb.layer.borderWidth = 1
+        lb.layer.borderColor = UIColor.black.cgColor
+        lb.translatesAutoresizingMaskIntoConstraints = false
+        return lb
+    }()
+    
+    var score = 0
+    let scoreLabel: UILabel = {
+        let lb = UILabel()
+        lb.text = "Score: 0"
+        lb.backgroundColor = UIColor.white
+        lb.textColor = UIColor.black
+        lb.textAlignment = .left
+        lb.backgroundColor = UIColor.white
+        lb.layer.borderWidth = 1
+        lb.layer.borderColor = UIColor.black.cgColor
         lb.translatesAutoresizingMaskIntoConstraints = false
         return lb
     }()
@@ -72,6 +89,7 @@ class ViewController: UIViewController {
         view.backgroundColor = UIColor.white
         
         view.addSubview(countdownLabel)
+        view.addSubview(scoreLabel)
         view.addSubview(randomNumberTextField)
         for i in 0...3 {
             
@@ -92,9 +110,15 @@ class ViewController: UIViewController {
     {
         // countdownLabel
         countdownLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 60).isActive = true
-        countdownLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -24).isActive = true
+        countdownLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 1/3).isActive = true
         countdownLabel.heightAnchor.constraint(equalToConstant: 60).isActive = true
-        countdownLabel.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        countdownLabel.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 24).isActive = true
+        
+        // scoreLabel
+        scoreLabel.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 60).isActive = true
+        scoreLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor, multiplier: 1/3).isActive = true
+        scoreLabel.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        scoreLabel.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: -24).isActive = true
         
         // randomNumberTextField
         randomNumberTextField.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -24).isActive = true
@@ -137,12 +161,8 @@ class ViewController: UIViewController {
         }
         
         if (result) {
-            let alert = UIAlertController(title: "Congratulations!", message: "You win!", preferredStyle: UIAlertControllerStyle.alert)
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: { (action) in
-                alert.dismiss(animated: true, completion: nil)
-            }))
-        
-            self.present(alert, animated: true, completion: nil)
+           score = score + 1
+            scoreLabel.text = "Score: \(score)"
         }
     }
     
@@ -150,7 +170,9 @@ class ViewController: UIViewController {
     {
         result = false
         gameTimer?.invalidate()
-        count = 0
+        count = 30
+        score = 0
+        scoreLabel.text = "Score: 0"
         gameTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(countdown), userInfo: nil, repeats: true)
         countdownLabel.text = "0"
         randNum = generateRandomNumber(lowerBound: 1000, upperBound: 9999)
@@ -174,8 +196,17 @@ class ViewController: UIViewController {
     }
     
     @objc func countdown() {
-        count = count + 1
-        countdownLabel.text = String(count)
+        count = count - 1
+        countdownLabel.text = "Time: \(String(count))"
+        if (count <= 0) {
+            gameTimer?.invalidate()
+            let alert = UIAlertController(title: "Congratulations!", message: "You have got \(score) scores!", preferredStyle: UIAlertControllerStyle.alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: { (action) in
+                alert.dismiss(animated: true, completion: nil)
+            }))
+            
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
 }
